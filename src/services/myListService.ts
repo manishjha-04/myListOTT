@@ -80,13 +80,14 @@ export const listMyItems = async (userId: string, page: number = 1, pageSize: nu
   if (userItems.length === 0) {
     const user = await User.findOne({ id: userId });
     if (!user) throw new Error("User not found");
-    userItems = user.myList;
-    await updateRedisCache(userId, userItems);
+    
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    userItems = user.myList.slice(startIndex, endIndex);
+
+    await updateRedisCache(userId, user.myList);
   }
 
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  return userItems.slice(startIndex, endIndex);
+  return userItems;
 };
 
