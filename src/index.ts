@@ -10,12 +10,16 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use("/api/mylist", myListRoutes);
+
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("Connected to MongoDb");
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
 
 export default app;
