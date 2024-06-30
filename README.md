@@ -6,6 +6,13 @@
 
 This is the Backend Implementation of any Over-the-Top (OTT) app where we are implementing the My List feature.
 
+### Performance Optimization
+
+1. **Caching with Redis:** To minimize the load on the MongoDB database and reduce response times, the API caches frequently accessed data in Redis. This is especially useful for read-heavy endpoints.
+2. **Efficient Indexing:** MongoDB collections are indexed on commonly queried fields to speed up read operations.
+3. **Paginated Queries** Queries are paginated so that alot of entries don't become a heavy load upon fetches.
+
+
 ## Installation
 
 1. Clone the repository:
