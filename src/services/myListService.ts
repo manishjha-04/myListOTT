@@ -13,10 +13,16 @@ const updateRedisCache = async (userId: string, data: any): Promise<void> => {
   await redisClient.set(userId, JSON.stringify(data));
 };
 
-const getFromRedisCache = async (userId: string): Promise<any> => {
+const getFromRedisCache = async (userId: string, page: number, pageSize: number): Promise<any[]> => {
   const redisClient = getRedisClient();
   const data = await redisClient.get(userId);
-  return data ? JSON.parse(data) : null;
+  if (!data) return [];
+
+  const userItems = JSON.parse(data);
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  return userItems.slice(startIndex, endIndex);
 };
 
 const getItem = async (itemId: string): Promise<any> => {
@@ -65,18 +71,22 @@ export const removeItemFromList = async (userId: string, itemId: string): Promis
   return updatedUser.myList;
 };
 
-export const listMyItems = async (userId: string): Promise<any> => {
+export const listMyItems = async (userId: string, page: number = 1, pageSize: number = 10): Promise<any[]> => {
   if (!await checkUserExists(userId)) {
     throw new Error("User not found");
   }
 
-  let userItems = await getFromRedisCache(userId);
-  if (!userItems) {
+  let userItems = await getFromRedisCache(userId, page, pageSize);
+  if (userItems.length === 0) {
     const user = await User.findOne({ id: userId });
     if (!user) throw new Error("User not found");
     userItems = user.myList;
     await updateRedisCache(userId, userItems);
   }
 
-  return userItems;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  return userItems.slice(startIndex, endIndex);
 };
+
