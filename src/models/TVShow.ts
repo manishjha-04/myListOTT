@@ -1,26 +1,23 @@
-import mongoose, { Document, Schema } from "mongoose";
-enum Genre {
-  ACTION = "Action",
-  DRAMA = "Drama",
-  COMEDY = "Comedy",
-  HORROR = "Horror",
+import mongoose, { Schema, Document } from 'mongoose';
+import { Genre } from '../../Genre/Genre';
+
+interface IEpisode {
+  episodeNumber: number;
+  seasonNumber: number;
+  releaseDate: Date;
+  director: string;
+  actors: string[];
 }
 
-export interface TVShow extends Document {
+export interface ITVShow extends Document {
   id: string;
   title: string;
   description: string;
   genres: Genre[];
-  episodes: Array<{
-    episodeNumber: number;
-    seasonNumber: number;
-    releaseDate: Date;
-    director: string;
-    actors: string[];
-  }>;
+  episodes: IEpisode[];
 }
 
-const EpisodeSchema: Schema = new Schema({
+const episodeSchema: Schema = new Schema({
   episodeNumber: { type: Number, required: true },
   seasonNumber: { type: Number, required: true },
   releaseDate: { type: Date, required: true },
@@ -28,14 +25,17 @@ const EpisodeSchema: Schema = new Schema({
   actors: { type: [String], required: true },
 });
 
-export const TVShowSchema: Schema = new Schema({
+const tvShowSchema: Schema = new Schema({
   id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  genres: { type: [String], enum: Object.values(Genre), required: true },
-  episodes: { type: [EpisodeSchema], required: true },
+  genres: [{ type: String }],
+  episodes: [episodeSchema],
 });
 
-const TVShowModel = mongoose.model<TVShow>("TVShow", TVShowSchema);
 
-export default TVShowModel;
+tvShowSchema.index({ id: 1 });
+
+const TVShow = mongoose.model<ITVShow>('TVShow', tvShowSchema);
+
+export default TVShow;

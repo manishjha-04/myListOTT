@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
-import  {MovieSchema, Movie } from "./Movies";
-import { TVShow,TVShowSchema } from "./TVShow";
+import  { IMovie } from "./Movies";
+import { ITVShow } from "./TVShow";
 
 
 interface IUser extends Document {
@@ -15,7 +15,7 @@ interface IUser extends Document {
     watchedOn: Date;
     rating?: number;
   }>;
-  myList: (Movie | TVShow)[];
+  myList: (IMovie | ITVShow)[];
 }
 
 const userSchema = new Schema<IUser>({
@@ -34,6 +34,8 @@ const userSchema = new Schema<IUser>({
   ],
   myList: [{ type: Schema.Types.Mixed, ref: null }],
 });
+
+userSchema.index({ id: 1 });
 
 const User = model<IUser>("User", userSchema);
 export default User;

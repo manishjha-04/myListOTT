@@ -1,13 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
+import { Genre } from '../../Genre/Genre';
 
-enum Genre {
-  ACTION = "Action",
-  DRAMA = "Drama",
-  COMEDY = "Comedy",
-  HORROR = "Horror",
-}
 
-export interface Movie extends Document {
+export interface IMovie extends Document {
   id: string;
   title: string;
   description: string;
@@ -17,16 +12,17 @@ export interface Movie extends Document {
   actors: string[];
 }
 
-export const MovieSchema: Schema = new Schema({
+const movieSchema: Schema = new Schema({
   id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  genres: { type: [String], enum: Object.values(Genre), required: true },
+  genres: [{ type: String }],
   releaseDate: { type: Date, required: true },
   director: { type: String, required: true },
-  actors: { type: [String], required: true },
+  actors: [{ type: String }],
 });
 
-const MovieModel = mongoose.model<Movie>("Movie", MovieSchema);
+movieSchema.index({ id: 1 });
 
-export default MovieModel;
+const Movie = mongoose.model<IMovie>('Movie', movieSchema);
+export default Movie;
