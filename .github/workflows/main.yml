@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand('ping')'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Load data
+        env:
+          MONGO_URI: mongodb+srv://kumaraadikapoor:Fx5iFEm6pIsox19i@cluster0.tibpxzn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+        run: |
+          npx ts-node src/script/LoadData.ts
+          npx ts-node src/script/LoadMovieTvShows.ts
+
+      - name: Run tests
+        env:
+          MONGO_URI: mongodb+srv://kumaraadikapoor:Fx5iFEm6pIsox19i@cluster0.tibpxzn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+        run: npm test
